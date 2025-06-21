@@ -17,26 +17,22 @@ def create_issue_view(request: HttpRequest, project_id: str) -> Response:
     if err is not None:
         return err
 
-    try:
-        project = Project.objects.get(name=project_id)
+    # RequestValidator already checked that this project exists, but due to the intentional design, we need to
+    # query for it twice (look inside that function to see why it's simpler)
+    project = Project.objects.get(name=project_id)
 
-        # Get the next issue_id for this project
-        latest_issue = Issue.objects.filter(project=project).order_by('-issue_id').first()
-        next_issue_id = (latest_issue.issue_id + 1) if latest_issue else 1
+    # Get the next issue_id for this project
+    latest_issue = Issue.objects.filter(project=project).order_by('-issue_id').first()
+    next_issue_id = (latest_issue.issue_id + 1) if latest_issue else 1
 
-        issue = Issue.objects.create(
-            issue_id=next_issue_id,
-            title=info.title,
-            description=info.description,
-            project=project,
-            reporter=request.user,
-            status=info.status,
-            priority=info.priority,
-        )
+    issue = Issue.objects.create(
+        issue_id=next_issue_id,
+        title=info.title,
+        description=info.description,
+        project=project,
+        reporter=request.user,
+        status=info.status,
+        priority=info.priority,
+    )
 
-        return Response(data=issue.__repr__(), status=HTTP_201_CREATED)
-
-    except Project.DoesNotExist:
-        return Response(data={'error': f'Project {project_id} not found'}, status=HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response(data={'error': str(e)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(data=issue.__repr__(), status=HTTP_201_CREATED)

@@ -161,3 +161,20 @@ class TestProjectIssueCreateViewAPI(APITestCase):
         second_issue = Issue.objects.get(title='Second Issue')
         self.assertEqual(first_issue.issue_id, 1)
         self.assertEqual(second_issue.issue_id, 2)
+
+    def test_create_issue_unexistent_project(self):
+        url = reverse('create issue', kwargs={'project_id': 'invalid'})
+        data = {
+            'title': "My first issue",
+            'description': 'First description',
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 403)
+
+    def test_create_issue_nonstring_description(self):
+        data = {
+            'title': "My first issue",
+            'description': {'text': 'description', 'length': 4}
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, 400)

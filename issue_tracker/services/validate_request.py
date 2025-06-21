@@ -17,19 +17,19 @@ class IssueInfo:
 
     @classmethod
     def parse_from_request(cls, request):
-        title = request.POST.get('title')
+        title = request.data.get('title')
         if not title or not isinstance(title, str):
             return None, Response(data={'error': 'Title is required'}, status=HTTP_400_BAD_REQUEST)
 
-        description = request.POST.get('description', 'No description provided.')
+        description = request.data.get('description', 'No description provided.')
         if not isinstance(description, str):
             return None, Response(data={'error': 'Description must be a string'}, status=HTTP_400_BAD_REQUEST)
 
-        is_valid, status = validate_in_enum(request.POST.get('status'), IssueStatus)
+        is_valid, status = validate_in_enum(request.data.get('status'), IssueStatus)
         if not is_valid:
             return None, Response(data={'error': 'Invalid issue status'}, status=HTTP_400_BAD_REQUEST)
 
-        is_valid, priority = validate_in_enum(request.POST.get('priority'), IssuePriority)
+        is_valid, priority = validate_in_enum(request.data.get('priority'), IssuePriority)
         if not is_valid:
             return None, Response(data={'error': 'Invalid issue priority'}, status=HTTP_400_BAD_REQUEST)
 
