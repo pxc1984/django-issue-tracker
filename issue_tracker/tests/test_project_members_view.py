@@ -68,7 +68,7 @@ class TestProjectMembersViewAPI(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
 
         membership = ProjectMembership.objects.filter(
-            user=self.user,
+            user=data['username'],
             project=self.project,
             role=1,
         ).first()
