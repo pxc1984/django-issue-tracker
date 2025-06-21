@@ -20,6 +20,7 @@ class Project(models.Model):
         verbose_name = 'Project'
         verbose_name_plural = 'Projects'
 
+
 class IssueStatus(Enum):
     OPEN = 0
     NOT_PLANNED = 1
@@ -29,6 +30,7 @@ class IssueStatus(Enum):
     def is_valid(cls, n: int):
         return n in [member.value for member in cls]
 
+
 class IssuePriority(Enum):
     LOW = 0
     MEDIUM = 1
@@ -37,6 +39,7 @@ class IssuePriority(Enum):
     @classmethod
     def is_valid(cls, n: int):
         return n in [member.value for member in cls]
+
 
 class Issue(models.Model):
     issue_id = models.IntegerField()
@@ -62,6 +65,7 @@ class Issue(models.Model):
         verbose_name_plural = 'Issues'
         unique_together = ('project', 'issue_id')
 
+
 class Assignment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     issue = models.ForeignKey(Issue, on_delete=models.CASCADE)
@@ -79,6 +83,7 @@ class ProjectPermission(Enum):
     ReadWrite = 3
     Manage = 4
     Owner = 7
+
 
 class ProjectMembership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

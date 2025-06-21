@@ -6,49 +6,9 @@ from rest_framework.response import Response
 from rest_framework.status import *
 
 from issue_tracker.models import ProjectPermission, Project, IssueStatus, Issue, IssuePriority
+from issue_tracker.views.services.issue_validator import validate_in_enum
 from issue_tracker.views.services.validate_request import RequestValidator
 
-
-def validate_issue_status(status_value: Optional[str]) -> tuple[bool, Optional[int]]:
-    """
-    Validates the issue status and converts it to integer format.
-    Returns a tuple of (is_valid, status_value).
-    """
-    if not status_value:
-        return True, 0
-
-    try:
-        status_int = int(status_value)
-        if status_int not in IssueStatus:
-            return False, None
-        return True, status_int
-    except ValueError:
-        try:
-            if status_value in IssueStatus.__members__:
-                return True, IssueStatus[status_value].value
-        except KeyError:
-            return False, None
-
-
-def validate_issue_priority(priority_value: Optional[str]) -> tuple[bool, Optional[int]]:
-    """
-    Validates the issue priority and converts it to integer format.
-    Returns a tuple of (is_valid, priority_value).
-    """
-    if not priority_value:
-        return True, 0
-
-    try:
-        priority_int = int(priority_value)
-        if priority_int not in IssuePriority:
-            return False, None
-        return True, priority_int
-    except ValueError:
-        try:
-            if priority_value in IssuePriority.__members__:
-                return True, IssuePriority[priority_value].value
-        except KeyError:
-            return False, None
 
 
 @api_view(['POST'])
@@ -58,18 +18,18 @@ def create_issue_view(request: HttpRequest, project_id: str) -> Response:
         return err
 
     title = request.POST.get('title')
-    if not title:
+    if not title or not isinstance(title, str):
         return Response(data={'error': 'Title is required'}, status=HTTP_400_BAD_REQUEST)
 
     description = request.POST.get('description', 'No description provided.')
     if not isinstance(description, str):
         return Response(data={'error': 'Description must be a string'}, status=HTTP_400_BAD_REQUEST)
 
-    is_valid, status = validate_issue_status(request.POST.get('status'))
+    is_valid, status = validate_in_enum(request.POST.get('status'), IssueStatus)
     if not is_valid:
         return Response(data={'error': 'Invalid issue status'}, status=HTTP_400_BAD_REQUEST)
 
-    is_valid, priority = validate_issue_priority(request.POST.get('priority'))
+    is_valid, priority = validate_in_enum(request.POST.get('priority'), IssuePriority)
     if not is_valid:
         return Response(data={'error': 'Invalid issue priority'}, status=HTTP_400_BAD_REQUEST)
 
