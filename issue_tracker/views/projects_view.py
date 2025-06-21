@@ -20,6 +20,8 @@ def projects_view(request: HttpRequest) -> Response:
     :param request:
     :return:
     """
+    if type(request.user) != User:
+        return Response({'message': 'You can\'t access this resource as an anonimous user'}, status=HTTP_403_FORBIDDEN)
     if request.method == 'GET':
         return handle_get_projects_view(request)
     elif request.method == 'POST':
@@ -34,8 +36,6 @@ def handle_get_projects_view(request: HttpRequest) -> Response:
 
 
 def handle_create_projects_view(request: HttpRequest) -> Response:
-    if type(request.user) != User:
-        return Response({'message': 'You can\'t access this resource as an anonimous user'}, status=HTTP_403_FORBIDDEN)
     project_name = request.POST.get('name')
     if project_name is None:
         return Response({'message': 'Please provide project name'}, status=HTTP_400_BAD_REQUEST)
@@ -60,8 +60,6 @@ def handle_create_projects_view(request: HttpRequest) -> Response:
 
 
 def handle_delete_projects_view(request: HttpRequest) -> Response:
-    if type(request.user) != User:
-        return Response({'message': 'You can\'t access this resource as an anonymous user'}, status=HTTP_403_FORBIDDEN)
     project_name = request.POST.get('name')
     if project_name is None:
         return Response({'message': 'Please provide project name'}, status=HTTP_400_BAD_REQUEST)
