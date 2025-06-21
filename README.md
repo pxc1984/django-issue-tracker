@@ -2,6 +2,11 @@
 
 This is a test exercise for me to learn Django for creating 'state-of-the-art' (sarcasm) API.
 
+## TODO:
+- [ ] Assigning maintainers to issues
+- [ ] Rate-limit issue creation (e.g. max 5 per minute)
+- [ ] Filtering & searching issues by status, priority, assignee
+
 ## API Endpoints
 
 | Method | Endpoint              | Description                                                  |
