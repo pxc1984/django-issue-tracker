@@ -40,7 +40,7 @@ class TestProjectIssueCreateViewAPI(APITestCase):
             'status': IssueStatus.OPEN.value,
             'priority': IssuePriority.LOW.value,
         }
-        response: Response = self.client.post(self.url, data)
+        response: Response = self.client.post(self.url, data, format='json')
 
         self.assertEqual(response.status_code, 201)
         self.assertTrue(Issue.objects.filter(title='Test Issue').exists())
@@ -57,7 +57,7 @@ class TestProjectIssueCreateViewAPI(APITestCase):
             'description': 'Test Description',
             'status': str(IssueStatus.OPEN.value)
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format='json')
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data['error'], 'Title is required')
@@ -68,7 +68,7 @@ class TestProjectIssueCreateViewAPI(APITestCase):
             'description': 'Test Description',
             'status': '999'  # Invalid status
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format='json')
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data['error'], 'Invalid issue status')
@@ -80,7 +80,7 @@ class TestProjectIssueCreateViewAPI(APITestCase):
             'status': str(IssueStatus.OPEN.value),
             'priority': '5'  # Invalid priority
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format='json')
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data['error'], 'Invalid issue priority')
@@ -90,7 +90,7 @@ class TestProjectIssueCreateViewAPI(APITestCase):
             'title': 'Test Issue',
             'status': str(IssueStatus.OPEN.value)
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format='json')
 
         self.assertEqual(response.status_code, 201)
         issue = Issue.objects.get(title='Test Issue')
@@ -102,7 +102,7 @@ class TestProjectIssueCreateViewAPI(APITestCase):
             'description': 'Test Description',
             'status': 'OPEN'
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format='json')
 
         self.assertEqual(response.status_code, 201)
         issue = Issue.objects.get(title='Test Issue')
@@ -114,7 +114,7 @@ class TestProjectIssueCreateViewAPI(APITestCase):
             'title': 'Test Issue',
             'description': 'Test Description'
         }
-        response = self.client.post(url, data)
+        response = self.client.post(url, data, format='json')
 
         self.assertEqual(response.status_code, 403)
 
@@ -124,7 +124,7 @@ class TestProjectIssueCreateViewAPI(APITestCase):
             'title': 'Test Issue',
             'description': 'Test Description'
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format='json')
 
         self.assertEqual(response.status_code, 403)
 
@@ -136,7 +136,7 @@ class TestProjectIssueCreateViewAPI(APITestCase):
             'title': 'Test Issue',
             'description': 'Test Description'
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format='json')
 
         self.assertEqual(response.status_code, 403)
 
@@ -146,7 +146,7 @@ class TestProjectIssueCreateViewAPI(APITestCase):
             'title': 'First Issue',
             'description': 'First Description'
         }
-        response1 = self.client.post(self.url, data1)
+        response1 = self.client.post(self.url, data1, format='json')
         self.assertEqual(response1.status_code, 201)
 
         # Create second issue
@@ -154,7 +154,7 @@ class TestProjectIssueCreateViewAPI(APITestCase):
             'title': 'Second Issue',
             'description': 'Second Description'
         }
-        response2 = self.client.post(self.url, data2)
+        response2 = self.client.post(self.url, data2, format='json')
         self.assertEqual(response2.status_code, 201)
 
         first_issue = Issue.objects.get(title='First Issue')
@@ -168,7 +168,7 @@ class TestProjectIssueCreateViewAPI(APITestCase):
             'title': "My first issue",
             'description': 'First description',
         }
-        response = self.client.post(url, data)
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 403)
 
     def test_create_issue_nonstring_description(self):

@@ -1,6 +1,6 @@
 ﻿from django.contrib.auth.models import User
-from django.http import HttpRequest
 from rest_framework.decorators import api_view
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import *
 
@@ -8,7 +8,7 @@ from issue_tracker.models import Project, ProjectMembership, ProjectPermission
 
 
 @api_view(['GET', 'POST'])
-def project_members_view(request: HttpRequest, project_id: str) -> Response:
+def project_members_view(request: Request, project_id: str) -> Response:
     """
     Веб-сервис, отвечающий за работу с членами проекта.
 
@@ -46,7 +46,7 @@ def get_project_members_view(project: Project, membership: ProjectMembership) ->
     return Response({'data': members}, status=HTTP_200_OK)
 
 
-def edit_project_members_view(request: HttpRequest, project: Project, membership: ProjectMembership) -> Response:
+def edit_project_members_view(request: Request, project: Project, membership: ProjectMembership) -> Response:
     """
     Handles editing project membership details based on user permissions and request input.
     This view provides functionality to add a new member to a project or update the role
@@ -55,7 +55,7 @@ def edit_project_members_view(request: HttpRequest, project: Project, membership
 
     :param request: The HTTP request object, containing user details, POST data, and other
                     metadata required for processing the membership changes
-    :type request: HttpRequest
+    :type request: Request
     :param project: The project instance for which the membership changes are being made
     :type project: Project
     :param membership: The current user's membership in the project, used to verify if

@@ -1,6 +1,6 @@
 ﻿from django.contrib.auth.models import User
-from django.http import HttpRequest
 from rest_framework.decorators import api_view
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import *
 
@@ -8,7 +8,7 @@ from issue_tracker.models import Project, ProjectMembership, ProjectPermission
 
 
 @api_view(['GET', 'POST', 'DELETE'])
-def projects_view(request: HttpRequest) -> Response:
+def projects_view(request: Request) -> Response:
     """
     Веб-сервис, отвечающий за взаимодействие с проектами.
 
@@ -29,20 +29,20 @@ def projects_view(request: HttpRequest) -> Response:
         return handle_delete_projects_view(request)
 
 
-def handle_get_projects_view(request: HttpRequest) -> Response:
+def handle_get_projects_view(request: Request) -> Response:
     memberships = ProjectMembership.objects.filter(user=request.user)
     projects_list = [i.project.__repr__() for i in memberships if i.role & ProjectPermission.Read]
     return Response({'data': projects_list}, status=HTTP_200_OK)
 
 
-def handle_create_projects_view(request: HttpRequest) -> Response:
-    project_name = request.POST.get('name')
+def handle_create_projects_view(request: Request) -> Response:
+    project_name = request.data.get('name')
     if project_name is None:
         return Response({'message': 'Please provide project name'}, status=HTTP_400_BAD_REQUEST)
     if Project.objects.filter(name=project_name).exists():
         return Response({'message': 'This project name is already taken'}, status=HTTP_400_BAD_REQUEST)
 
-    description = request.POST.get('description')
+    description = request.data.get('description')
     if description is None:
         description = 'No description provided'
 
@@ -59,8 +59,8 @@ def handle_create_projects_view(request: HttpRequest) -> Response:
     return Response({'message': 'created'}, status=HTTP_200_OK)
 
 
-def handle_delete_projects_view(request: HttpRequest) -> Response:
-    project_name = request.POST.get('name')
+def handle_delete_projects_view(request: Request) -> Response:
+    project_name = request.data.get('name')
     if project_name is None:
         return Response({'message': 'Please provide project name'}, status=HTTP_400_BAD_REQUEST)
     project = Project.objects.filter(name=project_name).first()

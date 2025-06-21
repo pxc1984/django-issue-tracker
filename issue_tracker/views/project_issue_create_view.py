@@ -1,5 +1,5 @@
-﻿from django.http import HttpRequest
-from rest_framework.decorators import api_view
+﻿from rest_framework.decorators import api_view
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import *
 
@@ -8,7 +8,7 @@ from issue_tracker.services.validate_request import RequestValidator, IssueInfo
 
 
 @api_view(['POST'])
-def create_issue_view(request: HttpRequest, project_id: str) -> Response:
+def create_issue_view(request: Request, project_id: str) -> Response:
     err = RequestValidator.validate_issue_request(request, project_id, ProjectPermission.Write)
     if err is not None:
         return err

@@ -1,6 +1,6 @@
 ﻿from dataclasses import dataclass
 from django.contrib.auth.models import User
-from django.http import HttpRequest
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import *
 
@@ -43,7 +43,7 @@ class IssueInfo:
 
 class RequestValidator:
     @staticmethod
-    def validate_issue_request(request: HttpRequest, project_id: str, target_permissions: ProjectPermission) -> Response | None:
+    def validate_issue_request(request: Request, project_id: str, target_permissions: ProjectPermission) -> Response | None:
         if type(request.user) is not User:
             return Response(status=HTTP_403_FORBIDDEN)
 
