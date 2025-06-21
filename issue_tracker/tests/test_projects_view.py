@@ -33,7 +33,7 @@ class TestProjectsViewAPI(BaseAPITestCase):
             'description': 'test description',
         }
         response: Response = self.client.post(self.url, project_data, format='json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
         project = Project.objects.filter(name=project_data['name']).first()
         self.assertIsNotNone(project)
         membership = ProjectMembership.objects.filter(user=self.user, project=project).first()
@@ -53,7 +53,7 @@ class TestProjectsViewAPI(BaseAPITestCase):
             'name': 'New project',
         }
         response: Response = self.client.post(self.url, project_data, format='json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
         self.assertTrue(Project.objects.filter(name=project_data['name']).exists())
 
     def testCreateProjectAnonymous(self):

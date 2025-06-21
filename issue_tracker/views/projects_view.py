@@ -59,7 +59,7 @@ def handle_create_projects_view(request: Request) -> Response:
         role=7,
     )
 
-    return Response({'message': 'created'}, status=HTTP_200_OK)
+    return Response({'message': 'created'}, status=HTTP_201_CREATED)
 
 
 def handle_delete_projects_view(request: Request) -> Response:
