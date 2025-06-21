@@ -34,7 +34,24 @@ def handle_get_projects_view(request: HttpRequest) -> Response:
 
 
 def handle_create_projects_view(request: HttpRequest) -> Response:
-    ...
+    project_name = request.POST.get('name')
+    if project_name is None:
+        return Response({'message': 'Please provide project name'}, status=HTTP_400_BAD_REQUEST)
+    if Project.objects.filter(name=project_name).exists():
+        return Response({'message': 'This project name is already taken'}, status=HTTP_400_BAD_REQUEST)
+
+    description = request.POST.get('description')
+    if description is None:
+        description = 'No description provided'
+
+    Project.objects.create(
+        name=project_name,
+        description=description,
+        created_by=request.user,
+    ).save()
+
+    return Response({'message': 'created'}, status=HTTP_200_OK)
+
 
 def handle_delete_projects_view(request: HttpRequest) -> Response:
     ...
