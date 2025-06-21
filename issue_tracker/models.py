@@ -20,21 +20,23 @@ class Project(models.Model):
         verbose_name = 'Project'
         verbose_name_plural = 'Projects'
 
-    class IssueStatus(Enum):
-        OPEN = 0
-        NOT_PLANNED = 1
-        CLOSED = 2
+class IssueStatus(Enum):
+    OPEN = 0
+    NOT_PLANNED = 1
+    CLOSED = 2
 
-        def is_valid(self, n: int):
-            return n in [member.value for member in self]
+    @classmethod
+    def is_valid(cls, n: int):
+        return n in [member.value for member in cls]
 
-    class IssuePriority(Enum):
-        LOW = 0
-        MEDIUM = 1
-        HIGH = 2
+class IssuePriority(Enum):
+    LOW = 0
+    MEDIUM = 1
+    HIGH = 2
 
-        def is_valid(self, n: int):
-            return n in [member.value for member in self]
+    @classmethod
+    def is_valid(cls, n: int):
+        return n in [member.value for member in cls]
 
 class Issue(models.Model):
     issue_id = models.IntegerField()

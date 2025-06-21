@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.status import *
 
-from issue_tracker.models import ProjectPermission, Project, IssueStatus, Issue
+from issue_tracker.models import ProjectPermission, Project, IssueStatus, Issue, IssuePriority
 from issue_tracker.views.services.validate_request import RequestValidator
 
 
@@ -15,21 +15,19 @@ def validate_issue_status(status_value: Optional[str]) -> tuple[bool, Optional[i
     Returns a tuple of (is_valid, status_value).
     """
     if not status_value:
-        return False, None
+        return True, 0
 
     try:
         status_int = int(status_value)
-        if not IssueStatus.is_valid_status(status_int):
+        if status_int not in IssueStatus:
             return False, None
         return True, status_int
     except ValueError:
-        # Try parsing as enum string
         try:
             if status_value in IssueStatus.__members__:
                 return True, IssueStatus[status_value].value
         except KeyError:
-            pass
-        return False, None
+            return False, None
 
 
 def validate_issue_priority(priority_value: Optional[str]) -> tuple[bool, Optional[int]]:
@@ -38,15 +36,19 @@ def validate_issue_priority(priority_value: Optional[str]) -> tuple[bool, Option
     Returns a tuple of (is_valid, priority_value).
     """
     if not priority_value:
-        return True, 0  # Default priority
+        return True, 0
 
     try:
         priority_int = int(priority_value)
-        if priority_int not in [0, 1, 2]:  # Valid priority values
+        if priority_int not in IssuePriority:
             return False, None
         return True, priority_int
     except ValueError:
-        return False, None
+        try:
+            if priority_value in IssuePriority.__members__:
+                return True, IssuePriority[priority_value].value
+        except KeyError:
+            return False, None
 
 
 @api_view(['POST'])
