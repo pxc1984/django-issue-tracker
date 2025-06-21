@@ -1,6 +1,9 @@
 ﻿from django.urls import path
 
-from issue_tracker.views import projects_view, project_members_view, project_issues_view, issue_view
+from issue_tracker.views.issue_view import issue_view
+from issue_tracker.views.project_issues_view import project_issues_view
+from issue_tracker.views.project_members_view import project_members_view
+from issue_tracker.views.projects_view import projects_view
 
 urlpatterns = [
     path('projects/', projects_view, name='projects view'),
