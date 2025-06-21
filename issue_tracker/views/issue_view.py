@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.status import *
 
 from issue_tracker.models import Issue, ProjectPermission
-from issue_tracker.views.services.validate_request import RequestValidator
+from issue_tracker.services.validate_request import RequestValidator
 
 
 @api_view(['GET'])

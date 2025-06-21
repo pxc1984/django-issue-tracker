@@ -4,9 +4,8 @@ from rest_framework.response import Response
 from rest_framework.status import *
 
 from issue_tracker.models import ProjectPermission, Project, IssueStatus, Issue, IssuePriority
-from issue_tracker.views.services.issue_validator import validate_in_enum
-from issue_tracker.views.services.validate_request import RequestValidator
-
+from issue_tracker.services.issue_validator import validate_in_enum
+from issue_tracker.services.validate_request import RequestValidator
 
 
 @api_view(['POST'])
