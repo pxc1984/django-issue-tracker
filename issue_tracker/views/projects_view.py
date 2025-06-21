@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.status import *
 
-from issue_tracker.models import Project, ProjectMembership
+from issue_tracker.models import Project, ProjectMembership, ProjectPermission
 
 
 @api_view(['GET', 'POST', 'DELETE'])
@@ -53,7 +53,7 @@ def handle_create_projects_view(request: HttpRequest) -> Response:
     ProjectMembership.objects.create(
         user=request.user,
         project=project,
-        role=2,
+        role=7,
     )
 
     return Response({'message': 'created'}, status=HTTP_200_OK)
@@ -72,7 +72,7 @@ def handle_delete_projects_view(request: HttpRequest) -> Response:
         user=request.user,
         project=project,
     ).first()
-    if membership is None or membership.role != '2':
+    if membership is None or not membership.role & ProjectPermission.Manage.value:
         return Response({'message': 'User doesn\'t have proper access rights'}, status=HTTP_403_FORBIDDEN)
 
     project.delete()

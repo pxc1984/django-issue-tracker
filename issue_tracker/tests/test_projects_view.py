@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework.response import Response
 
-from issue_tracker.models import Project, ProjectMembership
+from issue_tracker.models import Project, ProjectMembership, ProjectPermission
 
 
 # noinspection PyTypeChecker
@@ -23,7 +23,7 @@ class TestProjectsViewAPI(APITestCase):
         ProjectMembership.objects.create(
             user=cls.user,
             project=cls.project,
-            role=2,
+            role=7,
         )
 
         cls.url = reverse('projects view')
@@ -47,7 +47,11 @@ class TestProjectsViewAPI(APITestCase):
         }
         response: Response = self.client.post(self.url, project_data)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(Project.objects.filter(name=project_data['name']).exists())
+        project = Project.objects.filter(name=project_data['name']).first()
+        self.assertIsNotNone(project)
+        membership = ProjectMembership.objects.filter(user=self.user, project=project).first()
+        self.assertIsNotNone(membership)
+        self.assertEqual(membership.role, ProjectPermission.Owner.value)
 
     def testCreateProjectNoName(self):
         project_data = {
@@ -104,7 +108,7 @@ class TestProjectsViewAPI(APITestCase):
         ProjectMembership.objects.create(
             user=self.user,
             project=new_project,
-            role=1, # Contributor
+            role=1, # read-only access
         )
 
         response: Response = self.client.delete(self.url, new_data)

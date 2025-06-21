@@ -1,3 +1,5 @@
+from enum import Enum
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -18,24 +20,25 @@ class Project(models.Model):
         verbose_name = 'Project'
         verbose_name_plural = 'Projects'
 
+
+class IssueStatus(Enum):
+    OPEN = 0
+    NOT_PLANNED = 1
+    CLOSED = 2
+
+class IssuePriority(Enum):
+    LOW = 0
+    MEDIUM = 1
+    HIGH = 2
+
 class Issue(models.Model):
     id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=1023)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     reporter = models.ForeignKey(User, on_delete=models.CASCADE)
-    STATUS_CHOICES = [
-        (0, 'OPEN'),
-        (1, 'NOT_PLANNED'),
-        (2, 'CLOSED'),
-    ]
-    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default=0)
-    PRIORITY_CHOICES = [
-        (0, 'LOW'),
-        (1, 'MEDIUM'),
-        (2, 'HIGH'),
-    ]
-    priority = models.CharField(max_length=15, choices=PRIORITY_CHOICES, default=0)
+    status = models.SmallIntegerField(default=0)
+    priority = models.SmallIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
@@ -53,15 +56,19 @@ class Assignment(models.Model):
         verbose_name = 'Assignment'
         verbose_name_plural = 'Assignments'
 
+
+class ProjectPermission(Enum):
+    Null = 0
+    Read = 1
+    Write = 2
+    ReadWrite = 3
+    Manage = 4
+    Owner = 7
+
 class ProjectMembership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    ROLE_CHOICES = [
-        (0, 'CONTRIBUTOR'),
-        (1, 'MANAGER'),
-        (2, 'OWNER'),
-    ]
-    role = models.CharField(max_length=15, choices=ROLE_CHOICES)
+    role = models.SmallIntegerField(default=0)
 
     class Meta:
         db_table = 'memberships'
