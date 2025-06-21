@@ -4,7 +4,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import *
 
-from issue_tracker.models import Project, ProjectMembership, ProjectPermission
+from issue_tracker.models import Project, ProjectMembership, ProjectPermission, ProjectSerializer
 
 
 @api_view(['GET', 'POST', 'DELETE'])
@@ -31,7 +31,10 @@ def projects_view(request: Request) -> Response:
 
 def handle_get_projects_view(request: Request) -> Response:
     memberships = ProjectMembership.objects.filter(user=request.user)
-    projects_list = [i.project.__repr__() for i in memberships if i.role & ProjectPermission.Read]
+    projects_list = []
+    for membership in memberships:
+        if membership.role & ProjectPermission.Read:
+            projects_list.append(ProjectSerializer(membership.project).data)
     return Response({'data': projects_list}, status=HTTP_200_OK)
 
 

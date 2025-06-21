@@ -1,7 +1,7 @@
 ﻿from django.urls import reverse
 from rest_framework.response import Response
 
-from issue_tracker.models import Project, ProjectMembership, ProjectPermission
+from issue_tracker.models import Project, ProjectMembership, ProjectPermission, ProjectSerializer
 from issue_tracker.tests.base import BaseAPITestCase
 
 
@@ -17,8 +17,7 @@ class TestProjectsViewAPI(BaseAPITestCase):
         self.assertIn('data', response.data, '"data" key not found in response.')
         self.assertEqual(len(response.data['data']), 1, 'Server returned different amount of projects.')
         self.assertEqual(response.status_code, 200, 'Server returned different status code.')
-        self.assertEqual(type(response.data['data'][0]), dict, 'server didn\'t return correct type.')
-        self.assertDictEqual(response.data['data'][0], self.project.__repr__())
+        self.assertDictEqual(response.data['data'][0], ProjectSerializer(self.project).data)
 
     def testGetProjectsInsufficientPermissions(self):
         new_project = Project.objects.create( name='new project' )

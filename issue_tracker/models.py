@@ -10,16 +10,17 @@ class Project(models.Model):
     description = models.TextField(max_length=255, default='No description provided')
     creation_date = models.DateTimeField(auto_now_add=True)
 
-    def __repr__(self):
-        return {
-            'name': self.name,
-            'description': self.description,
-        }
-
     class Meta:
         db_table = 'projects'
         verbose_name = 'Project'
         verbose_name_plural = 'Projects'
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['name', 'description', 'creation_date']
+        read_only_fields = ['creation_date']
 
 
 class IssueStatus(enum.Enum):
