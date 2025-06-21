@@ -13,6 +13,6 @@ class RequestValidator:
             return Response(status=HTTP_403_FORBIDDEN)
 
         membership = ProjectMembership.objects.filter(user=request.user, project=project_id).first()
-        if membership is None or not membership.role & target_permissions.value:
+        if membership is None or not membership.role & target_permissions:
             return Response(status=HTTP_403_FORBIDDEN)
         return None

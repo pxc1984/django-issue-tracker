@@ -1,13 +1,15 @@
-﻿from django.contrib.auth.models import User
+﻿import rest_framework
+from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework.response import Response
 
-from issue_tracker.models import Project, ProjectMembership, ProjectPermission
+from issue_tracker.models import Project, ProjectMembership
 
 
-# noinspection PyTypeChecker
 class TestProjectMembersViewAPI(APITestCase):
+    client: rest_framework.test.APIClient
+
     @classmethod
     def setUpTestData(cls):
         cls.owner = User.objects.create_user(
@@ -69,21 +71,7 @@ class TestProjectMembersViewAPI(APITestCase):
             role=3,
         )
 
-        data = {
-            'username': self.user,
-            'role': 1,
-        }
-
-        response: Response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 200)
-
-        membership = ProjectMembership.objects.filter(
-            user=self.user,
-            project=self.project,
-            role=1,
-        ).first()
-        self.assertIsNotNone(membership)
+        self.testAddMemberPermissionsSuccess()
 
     def testAddMemberPermissionsSuccess(self):
         data = {

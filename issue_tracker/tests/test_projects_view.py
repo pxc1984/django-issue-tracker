@@ -1,4 +1,5 @@
-﻿from django.contrib.auth.models import User
+﻿import rest_framework
+from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework.response import Response
@@ -6,8 +7,9 @@ from rest_framework.response import Response
 from issue_tracker.models import Project, ProjectMembership, ProjectPermission
 
 
-# noinspection PyTypeChecker
 class TestProjectsViewAPI(APITestCase):
+    client: rest_framework.test.APIClient
+
     @classmethod
     def setUpTestData(cls):
         cls.user = User.objects.create_user(

@@ -1,5 +1,4 @@
 ﻿from django.contrib.auth.models import User
-from django.core.signals import request_started
 from django.http import HttpRequest
 from rest_framework.decorators import api_view
 from rest_framework.response import Response

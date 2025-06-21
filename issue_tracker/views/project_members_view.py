@@ -31,11 +31,11 @@ def project_members_view(request: HttpRequest, project_id: str) -> Response:
     ).first()
 
     if request.method == 'GET':
-        return get_project_members_view(request, project, membership)
+        return get_project_members_view(project, membership)
     else: # 'POST'
         return edit_project_members_view(request, project, membership)
 
-def get_project_members_view(request: HttpRequest, project: Project, membership: ProjectMembership) -> Response:
+def get_project_members_view(project: Project, membership: ProjectMembership) -> Response:
     if not membership or not membership.role & ProjectPermission.Read:
         return Response({'Not enough permissions to view this resource'}, status=HTTP_403_FORBIDDEN)
 
