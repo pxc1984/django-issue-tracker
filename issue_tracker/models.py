@@ -7,6 +7,13 @@ class Project(models.Model):
     description = models.TextField(max_length=255)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def __repr__(self):
+        return {
+            'name': self.name,
+            'description': self.description,
+            'created_by': str(self.created_by.username),
+        }
+
     class Meta:
         db_table = 'projects'
         verbose_name = 'Project'
