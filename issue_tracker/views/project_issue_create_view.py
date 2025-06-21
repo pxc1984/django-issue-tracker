@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.status import *
 
 from issue_tracker.models import ProjectPermission, Project, Issue
-from issue_tracker.services.validate_request import RequestValidator, NewIssueInfo
+from issue_tracker.services.validate_request import RequestValidator, IssueInfo
 
 
 @api_view(['POST'])
@@ -13,7 +13,7 @@ def create_issue_view(request: HttpRequest, project_id: str) -> Response:
     if err is not None:
         return err
 
-    info, err = NewIssueInfo.parse_from_request(request)
+    info, err = IssueInfo.parse_from_request(request)
     if err is not None:
         return err
 

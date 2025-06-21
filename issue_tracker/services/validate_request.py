@@ -9,7 +9,7 @@ from issue_tracker.services.issue_validator import validate_in_enum
 
 
 @dataclass
-class NewIssueInfo:
+class IssueInfo:
     title: str
     description: str
     status: int

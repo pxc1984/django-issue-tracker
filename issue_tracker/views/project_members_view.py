@@ -32,16 +32,19 @@ def project_members_view(request: HttpRequest, project_id: str) -> Response:
 
     if request.method == 'GET':
         return get_project_members_view(project, membership)
-    else: # 'POST'
+    else:  # 'POST'
         return edit_project_members_view(request, project, membership)
+
 
 def get_project_members_view(project: Project, membership: ProjectMembership) -> Response:
     if not membership or not membership.role & ProjectPermission.Read:
         return Response({'Not enough permissions to view this resource'}, status=HTTP_403_FORBIDDEN)
 
-    members = [{'username': membership.user.username, 'roles': ProjectPermission(membership.role).name} for membership in ProjectMembership.objects.filter(project=project)]
+    members = [{'username': membership.user.username, 'roles': ProjectPermission(membership.role).name} for membership
+               in ProjectMembership.objects.filter(project=project)]
 
     return Response({'data': members}, status=HTTP_200_OK)
+
 
 def edit_project_members_view(request: HttpRequest, project: Project, membership: ProjectMembership) -> Response:
     """
