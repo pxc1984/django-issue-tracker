@@ -1,4 +1,4 @@
-from enum import Enum
+import enum
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -21,7 +21,7 @@ class Project(models.Model):
         verbose_name_plural = 'Projects'
 
 
-class IssueStatus(Enum):
+class IssueStatus(enum.Enum):
     OPEN = 0
     NOT_PLANNED = 1
     CLOSED = 2
@@ -31,7 +31,7 @@ class IssueStatus(Enum):
         return n in [member.value for member in cls]
 
 
-class IssuePriority(Enum):
+class IssuePriority(enum.Enum):
     LOW = 0
     MEDIUM = 1
     HIGH = 2
@@ -76,14 +76,11 @@ class Assignment(models.Model):
         verbose_name_plural = 'Assignments'
 
 
-class ProjectPermission(Enum):
+class ProjectPermission(enum.IntFlag):
     Null = 0
     Read = 1
     Write = 2
-    ReadWrite = 3
     Manage = 4
-    Owner = 7
-
 
 class ProjectMembership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -32,7 +32,7 @@ def projects_view(request: HttpRequest) -> Response:
 
 def handle_get_projects_view(request: HttpRequest) -> Response:
     memberships = ProjectMembership.objects.filter(user=request.user)
-    projects_list = [i.project.__repr__() for i in memberships if i.role & ProjectPermission.Read.value]
+    projects_list = [i.project.__repr__() for i in memberships if i.role & ProjectPermission.Read]
     return Response({'data': projects_list}, status=HTTP_200_OK)
 
 
@@ -71,7 +71,7 @@ def handle_delete_projects_view(request: HttpRequest) -> Response:
         user=request.user,
         project=project,
     ).first()
-    if membership is None or not membership.role & ProjectPermission.Manage.value:
+    if membership is None or not membership.role & ProjectPermission.Manage:
         return Response({'message': 'User doesn\'t have proper access rights'}, status=HTTP_403_FORBIDDEN)
 
     project.delete()

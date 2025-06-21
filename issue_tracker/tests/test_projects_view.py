@@ -58,7 +58,7 @@ class TestProjectsViewAPI(APITestCase):
         self.assertIsNotNone(project)
         membership = ProjectMembership.objects.filter(user=self.user, project=project).first()
         self.assertIsNotNone(membership)
-        self.assertEqual(membership.role, ProjectPermission.Owner.value)
+        self.assertEqual(membership.role, ProjectPermission.Manage | ProjectPermission.Write | ProjectPermission.Read)
 
     def testCreateProjectNoName(self):
         project_data = {

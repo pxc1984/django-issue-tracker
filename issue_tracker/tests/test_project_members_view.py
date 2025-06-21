@@ -39,7 +39,7 @@ class TestProjectMembersViewAPI(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data['data']), 1)
         self.assertEqual(response.data['data'][0]['username'], self.owner.username)
-        self.assertEqual(response.data['data'][0]['roles'], 'Owner')
+        self.assertEqual(response.data['data'][0]['roles'], 'Read|Write|Manage')
 
     def testAnonymousAccess(self):
         self.client.force_authenticate(None)

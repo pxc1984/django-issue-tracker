@@ -36,7 +36,7 @@ def project_members_view(request: HttpRequest, project_id: str) -> Response:
         return edit_project_members_view(request, project, membership)
 
 def get_project_members_view(request: HttpRequest, project: Project, membership: ProjectMembership) -> Response:
-    if not membership or not membership.role & ProjectPermission.Read.value:
+    if not membership or not membership.role & ProjectPermission.Read:
         return Response({'Not enough permissions to view this resource'}, status=HTTP_403_FORBIDDEN)
 
     members = [{'username': membership.user.username, 'roles': ProjectPermission(membership.role).name} for membership in ProjectMembership.objects.filter(project=project)]
@@ -62,7 +62,7 @@ def edit_project_members_view(request: HttpRequest, project: Project, membership
              operation, with an appropriate HTTP status code and a descriptive message
     :rtype: Response
     """
-    if not membership or not membership.role & ProjectPermission.Manage.value:
+    if not membership or not membership.role & ProjectPermission.Manage:
         return Response({'Not enough permissions to edit this resource'}, status=HTTP_403_FORBIDDEN)
 
     username = request.POST.get('username')
