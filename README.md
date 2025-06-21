@@ -1,4 +1,4 @@
-# API for a library
+# API for a project management site
 
 This is a test exercise for me to learn Django for creating 'state-of-the-art' (sarcasm) API.
 
@@ -8,11 +8,6 @@ This is a test exercise for me to learn Django for creating 'state-of-the-art' (
 |--------|-----------------------|--------------------------------------------------------------|
 | POST   | `/auth_api/register/` | Register new user                                            |
 | POST   | `/auth_api/login/`    | Obtain auth token (uses DRF SimpleJWT)                       |
-| GET    | `/api/books/`         | List all books                                               |
-| POST   | `/api/books/`         | Add a new book *(admin only)*                                |
-| POST   | `/api/borrow/`        | TODO: Borrow a book (by `isbn`)                              |
-| POST   | `/api/return/`        | TODO: Return a book (by `isbn`)                              |
-| GET    | `/api/borrows/`       | TODO: View currently borrowed books (for authenticated user) |
 
 ## Env variables:
 
