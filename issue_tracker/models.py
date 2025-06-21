@@ -3,7 +3,7 @@ from django.db import models
 
 
 class Project(models.Model):
-    name = models.CharField(max_length=63)
+    name = models.CharField(max_length=63, unique=True, primary_key=True)
     description = models.TextField(max_length=255)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -13,6 +13,7 @@ class Project(models.Model):
         verbose_name_plural = 'Projects'
 
 class Issue(models.Model):
+    id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=1023)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
