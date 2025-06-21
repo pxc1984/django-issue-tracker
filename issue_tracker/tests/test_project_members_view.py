@@ -64,4 +64,103 @@ class TestProjectMembersViewAPI(APITestCase):
         response: Response = self.client.get(url, {})
         self.assertEqual(response.status_code, 403)
 
+        response: Response = self.client.post(url, {})
+        self.assertEqual(response.status_code, 403)
+
+    def testEditMemberPermissionsSuccess(self):
+        url = reverse('project members view', kwargs={'project_id': self.project.name})
+
+        ProjectMembership.objects.create(
+            user=self.user,
+            project=self.project,
+            role=3,
+        )
+
+        data = {
+            'username': self.user,
+            'role': 1,
+        }
+
+        response: Response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 200)
+
+        membership = ProjectMembership.objects.filter(
+            user=self.user,
+            project=self.project,
+            role=1,
+        ).first()
+        self.assertIsNotNone(membership)
+
+    def testAddMemberPermissionsSuccess(self):
+        url = reverse('project members view', kwargs={'project_id': self.project.name})
+
+        data = {
+            'username': self.user,
+            'role': 1,
+        }
+
+        response: Response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 200)
+
+        membership = ProjectMembership.objects.filter(
+            user=self.user,
+            project=self.project,
+            role=1,
+        ).first()
+        self.assertIsNotNone(membership)
+
+    def testDeleteMemberPermissionsSuccess(self):
+        url = reverse('project members view', kwargs={'project_id': self.project.name})
+
+        data = {
+            'username': self.user,
+            'role': 0,
+        }
+
+        response: Response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 200)
+
+        membership = ProjectMembership.objects.filter(
+            user=self.user,
+            project=self.project,
+        ).first()
+        self.assertEqual(membership.role, 0)
+
+    def testEditMemberPermissionsInvalidUsername(self):
+        url = reverse('project members view', kwargs={'project_id': self.project.name})
+
+        data = {
+            'role': 1,
+        }
+
+        response: Response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 400)
+
+    def testEditMemberPermissionsNonexistentUser(self):
+        url = reverse('project members view', kwargs={'project_id': self.project.name})
+
+        data = {
+            'username': 'invalid',
+            'role': 1,
+        }
+
+        response: Response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 400)
+
+    def testEditMemberPermissionsNoRole(self):
+        url = reverse('project members view', kwargs={'project_id': self.project.name})
+
+        data = {
+            'username': self.user,
+        }
+
+        response: Response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 400)
+
 
