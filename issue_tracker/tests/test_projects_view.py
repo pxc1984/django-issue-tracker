@@ -1,37 +1,16 @@
-﻿import rest_framework
-from django.contrib.auth.models import User
-from rest_framework.test import APITestCase
-from django.urls import reverse
+﻿from django.urls import reverse
 from rest_framework.response import Response
 
 from issue_tracker.models import Project, ProjectMembership, ProjectPermission
+from issue_tracker.tests.base import BaseAPITestCase
 
 
-class TestProjectsViewAPI(APITestCase):
-    client: rest_framework.test.APIClient
-
+class TestProjectsViewAPI(BaseAPITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create_user(
-            username="Test user",
-            password='passwd123',
-        )
-
-        # Create a test project
-        cls.project = Project.objects.create(
-            name='Test Project',
-            description='This is project description',
-        )
-        ProjectMembership.objects.create(
-            user=cls.user,
-            project=cls.project,
-            role=7,
-        )
+        super().setUpTestData()
 
         cls.url = reverse('projects view')
-
-    def setUp(self):
-        self.client.force_authenticate(self.user)
 
     def testGetProjectsSuccessful(self):
         response: Response = self.client.get(self.url, None, format='json')

@@ -1,46 +1,30 @@
 ﻿import rest_framework
 from django.contrib.auth.models import User
-from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework.response import Response
 
-from issue_tracker.models import Project, ProjectMembership
+from issue_tracker.models import ProjectMembership
+from issue_tracker.tests.base import BaseAPITestCase
 
 
-class TestProjectMembersViewAPI(APITestCase):
-    client: rest_framework.test.APIClient
-
+class TestProjectMembersViewAPI(BaseAPITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.owner = User.objects.create_user(
             username="Owner",
             password='passwd123',
         )
-        cls.user = User.objects.create_user(
-            username="Test user",
-            password='passwd124',
-        )
-
-        # Create a test project
-        cls.project = Project.objects.create(
-            name='TestProject',
-            description='This is project description',
-        )
-        ProjectMembership.objects.create(
-            user=cls.owner,
-            project=cls.project,
-            role=7,
-        )
+        super().setUpTestData()
 
     def setUp(self):
-        self.client.force_authenticate(self.owner)
+        super().setUp()
         self.url = reverse('project members view', kwargs={'project_id': self.project.name})
 
     def testListMembersSuccess(self):
         response: Response = self.client.get(self.url, {})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data['data']), 1)
-        self.assertEqual(response.data['data'][0]['username'], self.owner.username)
+        self.assertEqual(response.data['data'][0]['username'], self.user.username)
         self.assertEqual(response.data['data'][0]['roles'], 'Read|Write|Manage')
 
     def testAnonymousAccess(self):
@@ -56,7 +40,7 @@ class TestProjectMembersViewAPI(APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def testNotEnoughPermissions(self):
-        self.client.force_authenticate(self.user)
+        self.client.force_authenticate(self.user1)
 
         response: Response = self.client.get(self.url, {})
         self.assertEqual(response.status_code, 403)
