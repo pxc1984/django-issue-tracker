@@ -43,7 +43,7 @@ class IssueInfo:
 
 class RequestValidator:
     @staticmethod
-    def validate_issue_request(request: Request, project_id: str, target_permissions: ProjectPermission) -> Response | None:
+    def validate_request_permissions(request: Request, project_id: str, target_permissions: ProjectPermission) -> Response | None:
         if type(request.user) is not User:
             return Response(status=HTTP_403_FORBIDDEN)
 

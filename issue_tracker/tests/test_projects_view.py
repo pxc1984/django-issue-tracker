@@ -1,45 +1,23 @@
-﻿import rest_framework
-from django.contrib.auth.models import User
-from rest_framework.test import APITestCase
-from django.urls import reverse
+﻿from django.urls import reverse
 from rest_framework.response import Response
 
-from issue_tracker.models import Project, ProjectMembership, ProjectPermission
+from issue_tracker.models import Project, ProjectMembership, ProjectPermission, ProjectSerializer
+from issue_tracker.tests.base import BaseAPITestCase
 
 
-class TestProjectsViewAPI(APITestCase):
-    client: rest_framework.test.APIClient
-
+class TestProjectsViewAPI(BaseAPITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create_user(
-            username="Test user",
-            password='passwd123',
-        )
-
-        # Create a test project
-        cls.project = Project.objects.create(
-            name='Test Project',
-            description='This is project description',
-        )
-        ProjectMembership.objects.create(
-            user=cls.user,
-            project=cls.project,
-            role=7,
-        )
+        super().setUpTestData()
 
         cls.url = reverse('projects view')
-
-    def setUp(self):
-        self.client.force_authenticate(self.user)
 
     def testGetProjectsSuccessful(self):
         response: Response = self.client.get(self.url, None, format='json')
         self.assertIn('data', response.data, '"data" key not found in response.')
         self.assertEqual(len(response.data['data']), 1, 'Server returned different amount of projects.')
         self.assertEqual(response.status_code, 200, 'Server returned different status code.')
-        self.assertEqual(type(response.data['data'][0]), dict, 'server didn\'t return correct type.')
-        self.assertDictEqual(response.data['data'][0], self.project.__repr__())
+        self.assertDictEqual(response.data['data'][0], ProjectSerializer(self.project).data)
 
     def testGetProjectsInsufficientPermissions(self):
         new_project = Project.objects.create( name='new project' )
@@ -55,7 +33,7 @@ class TestProjectsViewAPI(APITestCase):
             'description': 'test description',
         }
         response: Response = self.client.post(self.url, project_data, format='json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
         project = Project.objects.filter(name=project_data['name']).first()
         self.assertIsNotNone(project)
         membership = ProjectMembership.objects.filter(user=self.user, project=project).first()
@@ -75,7 +53,7 @@ class TestProjectsViewAPI(APITestCase):
             'name': 'New project',
         }
         response: Response = self.client.post(self.url, project_data, format='json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
         self.assertTrue(Project.objects.filter(name=project_data['name']).exists())
 
     def testCreateProjectAnonymous(self):
