@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.status import *
 
-from issue_tracker.models import Project
+from issue_tracker.models import Project, ProjectMembership
 
 
 @api_view(['GET', 'POST', 'DELETE'])
@@ -34,6 +34,8 @@ def handle_get_projects_view(request: HttpRequest) -> Response:
 
 
 def handle_create_projects_view(request: HttpRequest) -> Response:
+    if type(request.user) != User:
+        return Response({'message': 'You can\'t access this resource as an anonimous user'}, status=HTTP_403_FORBIDDEN)
     project_name = request.POST.get('name')
     if project_name is None:
         return Response({'message': 'Please provide project name'}, status=HTTP_400_BAD_REQUEST)
@@ -44,14 +46,37 @@ def handle_create_projects_view(request: HttpRequest) -> Response:
     if description is None:
         description = 'No description provided'
 
-    Project.objects.create(
+    project = Project.objects.create(
         name=project_name,
         description=description,
-        created_by=request.user,
-    ).save()
+    )
+    ProjectMembership.objects.create(
+        user=request.user,
+        project=project,
+        role=2,
+    )
 
     return Response({'message': 'created'}, status=HTTP_200_OK)
 
 
 def handle_delete_projects_view(request: HttpRequest) -> Response:
-    ...
+    if type(request.user) != User:
+        return Response({'message': 'You can\'t access this resource as an anonymous user'}, status=HTTP_403_FORBIDDEN)
+    project_name = request.POST.get('name')
+    if project_name is None:
+        return Response({'message': 'Please provide project name'}, status=HTTP_400_BAD_REQUEST)
+    project = Project.objects.filter(name=project_name).first()
+    if project is None:
+        return Response({'message': 'This project does not exist'}, status=HTTP_400_BAD_REQUEST)
+    membership = ProjectMembership.objects.filter(
+        user=request.user,
+        project=project,
+    ).first()
+    if membership is None or membership.role != '2':
+        return Response({'message': 'User doesn\'t have proper access rights'}, status=HTTP_403_FORBIDDEN)
+
+    project.delete()
+
+    return Response({'message': 'deleted'}, status=HTTP_200_OK)
+
+

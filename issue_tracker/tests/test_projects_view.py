@@ -3,9 +3,10 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework.response import Response
 
-from issue_tracker.models import Project
+from issue_tracker.models import Project, ProjectMembership
 
 
+# noinspection PyTypeChecker
 class TestProjectsViewAPI(APITestCase):
     @classmethod
     def setUpTestData(cls):
@@ -18,7 +19,11 @@ class TestProjectsViewAPI(APITestCase):
         cls.project = Project.objects.create(
             name='Test Project',
             description='This is project description',
-            created_by=cls.user,
+        )
+        ProjectMembership.objects.create(
+            user=cls.user,
+            project=cls.project,
+            role=2,
         )
 
         cls.url = reverse('projects view')
@@ -40,9 +45,7 @@ class TestProjectsViewAPI(APITestCase):
             'name': 'New project',
             'description': 'test description',
         }
-        # noinspection PyTypeChecker
         response: Response = self.client.post(self.url, project_data)
-        self.assertEqual(response.data['message'], 'created')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(Project.objects.filter(name=project_data['name']).exists())
 
@@ -50,7 +53,6 @@ class TestProjectsViewAPI(APITestCase):
         project_data = {
             'description': 'test description',
         }
-        # noinspection PyTypeChecker
         response: Response = self.client.post(self.url, project_data)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(Project.objects.all().count(), 1)
@@ -59,7 +61,54 @@ class TestProjectsViewAPI(APITestCase):
         project_data = {
             'name': 'New project',
         }
-        # noinspection PyTypeChecker
         response: Response = self.client.post(self.url, project_data)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(Project.objects.filter(name=project_data['name']).exists())
+
+    def testCreateProjectAnonymous(self):
+        self.client.force_authenticate(None)
+        project_data = {
+            'name': 'New project',
+            'description': 'test description',
+        }
+        response: Response = self.client.post(self.url, project_data)
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(Project.objects.filter(name=project_data['name']).exists())
+
+    def testDeleteProjectSuccessful(self):
+        response: Response = self.client.delete(self.url, {'name': self.project.name})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Project.objects.all().count(), 0)
+
+    def testDeleteProjectAnonymous(self):
+        self.client.force_authenticate(None)
+        response: Response = self.client.delete(self.url, {'name': self.project.name})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Project.objects.all().count(), 1)
+
+    def testDeleteProjectNoName(self):
+        response: Response = self.client.delete(self.url, {})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Project.objects.all().count(), 1)
+
+    def testDeleteProjectUnexistent(self):
+        response: Response = self.client.delete(self.url, {'name': 'This project does not exist'})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Project.objects.all().count(), 1)
+
+    def testDeleteProjectUnsufficientPermissions(self):
+        new_data = {
+            'name': 'New project',
+        }
+        new_project = Project.objects.create(name=new_data['name'])
+        ProjectMembership.objects.create(
+            user=self.user,
+            project=new_project,
+            role=1, # Contributor
+        )
+
+        response: Response = self.client.delete(self.url, new_data)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Project.objects.all().count(), 2)
+
+

@@ -5,14 +5,12 @@ from django.db import models
 class Project(models.Model):
     name = models.CharField(max_length=63, unique=True, primary_key=True)
     description = models.TextField(max_length=255, default='No description provided')
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def __repr__(self):
         return {
             'name': self.name,
             'description': self.description,
-            'created_by': str(self.created_by.username),
         }
 
     class Meta:
@@ -61,6 +59,7 @@ class ProjectMembership(models.Model):
     ROLE_CHOICES = [
         (0, 'CONTRIBUTOR'),
         (1, 'MANAGER'),
+        (2, 'OWNER'),
     ]
     role = models.CharField(max_length=15, choices=ROLE_CHOICES)
 
