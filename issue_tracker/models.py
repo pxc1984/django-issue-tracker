@@ -32,9 +32,9 @@ class IssuePriority(Enum):
     HIGH = 2
 
 class Issue(models.Model):
-    id = models.IntegerField(primary_key=True)
+    issue_id = models.IntegerField()
     title = models.CharField(max_length=255)
-    description = models.CharField(max_length=1023)
+    description = models.CharField(max_length=1023, default='No description provided.')
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     reporter = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.SmallIntegerField(default=0)
@@ -42,10 +42,18 @@ class Issue(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
+    def __repr__(self):
+        return {
+            'title': self.title,
+            'description': self.description,
+            'project': self.project.name,
+        }
+
     class Meta:
         db_table = 'issues'
         verbose_name = 'Issue'
         verbose_name_plural = 'Issues'
+        unique_together = ('project', 'issue_id')
 
 class Assignment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
