@@ -59,7 +59,7 @@ class TestProjectMembersViewAPI(BaseAPITestCase):
 
     def testAddMemberPermissionsSuccess(self):
         data = {
-            'username': self.user,
+            'username': self.user1,
             'role': 1,
         }
 
