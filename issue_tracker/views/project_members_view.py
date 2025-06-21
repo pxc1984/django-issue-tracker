@@ -1,6 +1,6 @@
 ﻿from django.contrib.auth.models import User
-from django.http import HttpRequest
 from rest_framework.decorators import api_view
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import *
 
@@ -8,7 +8,7 @@ from issue_tracker.models import Project, ProjectMembership, ProjectPermission
 
 
 @api_view(['GET', 'POST'])
-def project_members_view(request: HttpRequest, project_id: str) -> Response:
+def project_members_view(request: Request, project_id: str) -> Response:
     """
     Веб-сервис, отвечающий за работу с членами проекта.
 
@@ -31,19 +31,22 @@ def project_members_view(request: HttpRequest, project_id: str) -> Response:
     ).first()
 
     if request.method == 'GET':
-        return get_project_members_view(request, project, membership)
-    else: # 'POST'
+        return get_project_members_view(project, membership)
+    else:  # 'POST'
         return edit_project_members_view(request, project, membership)
 
-def get_project_members_view(request: HttpRequest, project: Project, membership: ProjectMembership) -> Response:
-    if not membership or not membership.role & ProjectPermission.Read.value:
+
+def get_project_members_view(project: Project, membership: ProjectMembership) -> Response:
+    if not membership or not membership.role & ProjectPermission.Read:
         return Response({'Not enough permissions to view this resource'}, status=HTTP_403_FORBIDDEN)
 
-    members = [{'username': membership.user.username, 'roles': ProjectPermission(membership.role).name} for membership in ProjectMembership.objects.filter(project=project)]
+    members = [{'username': membership.user.username, 'roles': ProjectPermission(membership.role).name} for membership
+               in ProjectMembership.objects.filter(project=project)]
 
     return Response({'data': members}, status=HTTP_200_OK)
 
-def edit_project_members_view(request: HttpRequest, project: Project, membership: ProjectMembership) -> Response:
+
+def edit_project_members_view(request: Request, project: Project, membership: ProjectMembership) -> Response:
     """
     Handles editing project membership details based on user permissions and request input.
     This view provides functionality to add a new member to a project or update the role
@@ -52,7 +55,7 @@ def edit_project_members_view(request: HttpRequest, project: Project, membership
 
     :param request: The HTTP request object, containing user details, POST data, and other
                     metadata required for processing the membership changes
-    :type request: HttpRequest
+    :type request: Request
     :param project: The project instance for which the membership changes are being made
     :type project: Project
     :param membership: The current user's membership in the project, used to verify if
@@ -62,7 +65,7 @@ def edit_project_members_view(request: HttpRequest, project: Project, membership
              operation, with an appropriate HTTP status code and a descriptive message
     :rtype: Response
     """
-    if not membership or not membership.role & ProjectPermission.Manage.value:
+    if not membership or not membership.role & ProjectPermission.Manage:
         return Response({'Not enough permissions to edit this resource'}, status=HTTP_403_FORBIDDEN)
 
     username = request.POST.get('username')
