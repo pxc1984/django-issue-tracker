@@ -79,6 +79,11 @@ class TestProjectsViewAPI(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertFalse(Project.objects.filter(name=project_data['name']).exists())
 
+    def testCreateProjectExisting(self):
+        response: Response = self.client.post(self.url, {'name': self.project.name})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Project.objects.all().count(), 1)
+
     def testDeleteProjectSuccessful(self):
         response: Response = self.client.delete(self.url, {'name': self.project.name})
         self.assertEqual(response.status_code, 200)
