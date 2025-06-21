@@ -23,3 +23,16 @@ class TestProjectIssuesViewAPI(BaseAPITestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 403)
+
+    def test_get_project_issues_success(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['data']), 1)
+
+    def test_get_project_issues_no_access(self):
+        self.client.force_authenticate(self.user1)
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 403)

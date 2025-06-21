@@ -9,7 +9,7 @@ from issue_tracker.services.validate_request import RequestValidator, IssueInfo
 
 @api_view(['POST'])
 def create_issue_view(request: Request, project_id: str) -> Response:
-    err = RequestValidator.validate_issue_request(request, project_id, ProjectPermission.Write)
+    err = RequestValidator.validate_request_permissions(request, project_id, ProjectPermission.Write)
     if err is not None:
         return err
 
