@@ -31,7 +31,8 @@ def projects_view(request: HttpRequest) -> Response:
 
 
 def handle_get_projects_view(request: HttpRequest) -> Response:
-    projects_list = [project.__repr__() for project in Project.objects.all()]
+    memberships = ProjectMembership.objects.filter(user=request.user)
+    projects_list = [i.project.__repr__() for i in memberships if i.role & ProjectPermission.Read.value]
     return Response({'data': projects_list}, status=HTTP_200_OK)
 
 

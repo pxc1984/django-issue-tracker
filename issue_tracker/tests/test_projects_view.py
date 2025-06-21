@@ -32,13 +32,20 @@ class TestProjectsViewAPI(APITestCase):
         self.client.force_authenticate(self.user)
 
     def testGetProjectsSuccessful(self):
-        # noinspection PyTypeChecker
         response: Response = self.client.get(self.url, None)
         self.assertIn('data', response.data, '"data" key not found in response.')
         self.assertEqual(len(response.data['data']), 1, 'Server returned different amount of projects.')
         self.assertEqual(response.status_code, 200, 'Server returned different status code.')
         self.assertEqual(type(response.data['data'][0]), dict, 'server didn\'t return correct type.')
         self.assertDictEqual(response.data['data'][0], self.project.__repr__())
+
+    def testGetProjectsInsufficientPermissions(self):
+        new_project = Project.objects.create( name='new project' )
+        ProjectMembership.objects.create(user=self.user, project=new_project, role=0) # He doesn't have any permissions in this project
+
+        response = self.client.get(self.url, None)
+        self.assertEqual(len(response.data['data']), 1)
+        self.assertEqual(response.status_code, 200)
 
     def testCreateProjectSuccessful(self):
         project_data = {
