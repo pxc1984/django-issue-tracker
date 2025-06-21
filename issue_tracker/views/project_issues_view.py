@@ -4,7 +4,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import *
 
-from issue_tracker.models import ProjectPermission, Issue
+from issue_tracker.models import ProjectPermission, Issue, IssueSerializer
 from issue_tracker.services.validate_request import RequestValidator
 
 
@@ -22,9 +22,8 @@ def get_project_issues_view(request: Request, project_id: str) -> Response:
     if err:
         return err
 
-    issues = [issue.__repr__() for issue in Issue.objects.filter(project__name=project_id)]
-
-    return Response({'data': issues}, status=HTTP_200_OK)
+    queryset = Issue.objects.filter(project__name=project_id)
+    return Response({'data': IssueSerializer(queryset, many=True).data}, status=HTTP_200_OK)
 
 def post_project_issues_view(request: Request, project_id: str) -> Response:
     return Response({'message': 'ok'}, status=HTTP_200_OK)

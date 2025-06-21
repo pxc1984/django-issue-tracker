@@ -2,6 +2,7 @@ import enum
 
 from django.contrib.auth.models import User
 from django.db import models
+from rest_framework import serializers
 
 
 class Project(models.Model):
@@ -52,18 +53,30 @@ class Issue(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
-    def __repr__(self):
-        return {
-            'title': self.title,
-            'description': self.description,
-            'project': self.project.name,
-        }
-
     class Meta:
         db_table = 'issues'
         verbose_name = 'Issue'
         verbose_name_plural = 'Issues'
         unique_together = ('project', 'issue_id')
+
+class IssueSerializer(serializers.ModelSerializer):
+    project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all())
+    reporter = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        model = Issue
+        fields = [
+            'issue_id',
+            'title',
+            'description',
+            'project',
+            'reporter',
+            'status',
+            'priority',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['created_at', 'updated_at']
 
 
 class Assignment(models.Model):

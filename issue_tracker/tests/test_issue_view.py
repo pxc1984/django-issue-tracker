@@ -22,7 +22,7 @@ class TestIssueViewAPI(BaseAPITestCase):
         response: Response = self.client.get(self.url, {}, format='json')
 
         self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(response.data, self.issue.__repr__())
+        self.assertDictEqual(response.data, IssueSerializer(self.issue).data)
 
     def testGetNonexistentIssue(self):
         url = reverse('issue view', kwargs={'project_id': self.project.name, 'issue_id': 9999})

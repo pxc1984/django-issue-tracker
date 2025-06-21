@@ -3,7 +3,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import *
 
-from issue_tracker.models import ProjectPermission, Project, Issue
+from issue_tracker.models import ProjectPermission, Project, Issue, IssueSerializer
 from issue_tracker.services.validate_request import RequestValidator, IssueInfo
 
 
@@ -34,5 +34,4 @@ def create_issue_view(request: Request, project_id: str) -> Response:
         status=info.status,
         priority=info.priority,
     )
-
-    return Response(data=issue.__repr__(), status=HTTP_201_CREATED)
+    return Response(data=IssueSerializer(issue).data, status=HTTP_201_CREATED)
