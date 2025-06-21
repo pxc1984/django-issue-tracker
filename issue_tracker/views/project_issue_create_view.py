@@ -3,9 +3,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.status import *
 
-from issue_tracker.models import ProjectPermission, Project, IssueStatus, Issue, IssuePriority
-from issue_tracker.services.issue_validator import validate_in_enum
-from issue_tracker.services.validate_request import RequestValidator
+from issue_tracker.models import ProjectPermission, Project, Issue
+from issue_tracker.services.validate_request import RequestValidator, NewIssueInfo
 
 
 @api_view(['POST'])
@@ -14,21 +13,9 @@ def create_issue_view(request: HttpRequest, project_id: str) -> Response:
     if err is not None:
         return err
 
-    title = request.POST.get('title')
-    if not title or not isinstance(title, str):
-        return Response(data={'error': 'Title is required'}, status=HTTP_400_BAD_REQUEST)
-
-    description = request.POST.get('description', 'No description provided.')
-    if not isinstance(description, str):
-        return Response(data={'error': 'Description must be a string'}, status=HTTP_400_BAD_REQUEST)
-
-    is_valid, status = validate_in_enum(request.POST.get('status'), IssueStatus)
-    if not is_valid:
-        return Response(data={'error': 'Invalid issue status'}, status=HTTP_400_BAD_REQUEST)
-
-    is_valid, priority = validate_in_enum(request.POST.get('priority'), IssuePriority)
-    if not is_valid:
-        return Response(data={'error': 'Invalid issue priority'}, status=HTTP_400_BAD_REQUEST)
+    info, err = NewIssueInfo.parse_from_request(request)
+    if err is not None:
+        return err
 
     try:
         project = Project.objects.get(name=project_id)
@@ -39,12 +26,12 @@ def create_issue_view(request: HttpRequest, project_id: str) -> Response:
 
         issue = Issue.objects.create(
             issue_id=next_issue_id,
-            title=title,
-            description=description,
+            title=info.title,
+            description=info.description,
             project=project,
             reporter=request.user,
-            status=status,
-            priority=priority
+            status=info.status,
+            priority=info.priority,
         )
 
         return Response(data=issue.__repr__(), status=HTTP_201_CREATED)
