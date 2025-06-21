@@ -12,10 +12,7 @@ from issue_tracker.services.validate_request import RequestValidator
 def project_issues_view(request: Request, project_id: str) -> Response:
     if type(request.user) != User:
         return Response({'message': 'You can\'t access this resource as an anonymous user'}, status=HTTP_403_FORBIDDEN)
-    if request.method == 'GET':
-        return get_project_issues_view(request, project_id)
-    else: # 'POST'
-        return post_project_issues_view(request, project_id)
+    return get_project_issues_view(request, project_id)
 
 def get_project_issues_view(request: Request, project_id: str) -> Response:
     err = RequestValidator.validate_request_permissions(request, project_id, ProjectPermission.Read)
@@ -24,6 +21,3 @@ def get_project_issues_view(request: Request, project_id: str) -> Response:
 
     queryset = Issue.objects.filter(project__name=project_id)
     return Response({'data': IssueSerializer(queryset, many=True).data}, status=HTTP_200_OK)
-
-def post_project_issues_view(request: Request, project_id: str) -> Response:
-    return Response({'message': 'ok'}, status=HTTP_200_OK)
